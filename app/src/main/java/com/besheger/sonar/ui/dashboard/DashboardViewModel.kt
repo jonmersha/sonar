@@ -1,69 +1,3 @@
-//
-//package com.besheger.sonar.ui.dashboard
-//
-//import androidx.compose.runtime.*
-//import androidx.lifecycle.ViewModel
-//import androidx.lifecycle.viewModelScope
-//import com.besheger.sonar.data.local.entity.SonarTrackEntity
-//import com.besheger.sonar.data.repository.TrackRepository
-//import kotlinx.coroutines.flow.*
-//import kotlinx.coroutines.launch
-//
-//class DashboardViewModel(private val repository: TrackRepository) : ViewModel() {
-//
-//    // --- DATABASE STATE ---
-//    private val _searchQuery = MutableStateFlow("")
-//    val searchQuery = _searchQuery.asStateFlow()
-//
-//    private val _selectedCategory = MutableStateFlow("All")
-//    val selectedCategory = _selectedCategory.asStateFlow()
-//
-//    // Combined Flow: Automatically updates when search query OR category changes
-//    val tracks: StateFlow<List<SonarTrackEntity>> = combine(
-//        _searchQuery,
-//        _selectedCategory,
-//        repository.allTracks
-//    ) { query, category, allTracks ->
-//        allTracks.filter { track ->
-//            val matchesSearch = track.title.contains(query, ignoreCase = true) ||
-//                    track.artist.contains(query, ignoreCase = true)
-//            val matchesCategory = if (category == "All") true else track.category == category
-//
-//            matchesSearch && matchesCategory
-//        }
-//    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
-//
-//    // --- UI VIEW STATE (From previous steps) ---
-//    var isGridView by mutableStateOf(true)
-//    var activeTrack by mutableStateOf<SonarTrackEntity?>(null)
-//    var localIsPlaying by mutableStateOf(false)
-//    var sliderPos by mutableFloatStateOf(0f)
-//    var currentPositionMs by mutableLongStateOf(0L)
-//    var totalDurationMs by mutableLongStateOf(1L)
-//    val magnitudes = mutableStateListOf(0.1f, 0.1f, 0.1f, 0.1f, 0.1f, 0.1f, 0.1f, 0.1f)
-//
-//    // --- ACTIONS ---
-//    fun onSearch(query: String) { _searchQuery.value = query }
-//
-//    fun onCategorySelect(category: String) { _selectedCategory.value = category }
-//
-//    fun updatePlaybackState(playing: Boolean, position: Long, duration: Long) {
-//        localIsPlaying = playing
-//        currentPositionMs = position
-//        totalDurationMs = duration.coerceAtLeast(1L)
-//        sliderPos = position.toFloat() / totalDurationMs.toFloat()
-//    }
-//
-//    fun updateMagnitudes(data: ByteArray) {
-//        for (i in 0..7) {
-//            val sample = data[i * (data.size / 8)].toInt()
-//            val value = ((sample + 128).toFloat() / 255f)
-//            magnitudes[i] = (value * 1.2f).coerceIn(0.1f, 1f)
-//        }
-//    }
-//
-//    fun toggleLayout() { isGridView = !isGridView }
-//}
 package com.besheger.sonar.ui.dashboard
 
 import android.content.Context
@@ -84,7 +18,6 @@ class DashboardViewModel(private val repository: TrackRepository) : ViewModel() 
             repository.updateTrackCategory(track.uriString, newCategory)
         }
     }
-
     // Inside your ViewModel
     val totalCount: StateFlow<Int> = repository.totalTracksCount
         .stateIn(
@@ -138,7 +71,7 @@ class DashboardViewModel(private val repository: TrackRepository) : ViewModel() 
     val magnitudes = mutableStateListOf(0.1f, 0.1f, 0.1f, 0.1f, 0.1f, 0.1f, 0.1f, 0.1f)
 
     // --- 3. CORE ACTIONS ---
-    fun onSearch(query: String) { _searchQuery.value = query }
+//    fun onSearch(query: String) { _searchQuery.value = query }
 
     fun onCategorySelect(category: String) { _selectedCategory.value = category }
 
@@ -146,17 +79,11 @@ class DashboardViewModel(private val repository: TrackRepository) : ViewModel() 
 
     // --- 4. ENHANCED ACTIONS: REMOTE & SHARING ---
 
-    // Requirement: Upload to server
-    fun uploadTrack(track: SonarTrackEntity) {
-        viewModelScope.launch {
-            repository.uploadTrackToServer(track)
-        }
-    }
 
     // Requirement: Sharing audio file
-//    fun shareTrack(context: Context, track: SonarTrackEntity) {
-//        repository.shareAudioFile(context, track)
-//    }
+    fun shareTrack(context: Context, track: SonarTrackEntity) {
+        repository.shareAudioFile(context, track)
+    }
 
     // --- 5. PLAYER LOGIC ---
     private var isDragging = false // Prevents slider from jumping while user is moving it
@@ -188,12 +115,7 @@ class DashboardViewModel(private val repository: TrackRepository) : ViewModel() 
             magnitudes[i] = (value * 1.2f).coerceIn(0.1f, 1f)
         }
     }
-//    // Call this when the user clicks 'Save' in an Edit Category dialog
-//    fun onEditCategory(track: SonarTrackEntity, newCategory: String) {
-//        viewModelScope.launch {
-//            repository.updateTrackCategory(track.uriString, newCategory)
-//        }
-//    }
+
 
     // Call this when the user confirms a deletion
     fun onDeleteTrack(track: SonarTrackEntity) {

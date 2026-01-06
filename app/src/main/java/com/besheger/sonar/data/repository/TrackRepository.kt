@@ -1,9 +1,13 @@
 package com.besheger.sonar.data.repository
 
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.widget.Toast
+import androidx.core.content.FileProvider
 import com.besheger.sonar.data.local.dao.TrackDao
 import com.besheger.sonar.data.local.entity.SonarTrackEntity
-import kotlinx.coroutines.flow.Flow
+
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
@@ -15,6 +19,58 @@ class TrackRepository(private val trackDao: TrackDao) {
     val allTracks = trackDao.getAllTracks()
     val totalTracksCount = trackDao.getTrackCount()
     val categoryStats = trackDao.getCategoryStats()
+
+    // In TrackRepository.kt
+//    fun shareAudioFile(context: Context, track: SonarTrackEntity) {
+//        try {
+//            val file = File(track.uriString) // Assuming 'path' is the absolute path to the mp3
+//            if (!file.exists()) {
+//                Toast.makeText(context, "File no longer exists on disk${track.uriString}", Toast.LENGTH_SHORT).show()
+//                print(track.uriString)
+//                return
+//            }
+//
+//            // Generate a content URI using FileProvider
+//            val contentUri: Uri = FileProvider.getUriForFile(
+//                context,
+//                "${context.packageName}.fileprovider", // Must match your Manifest
+//                file
+//            )
+//
+//            val shareIntent = Intent().apply {
+//                action = Intent.ACTION_SEND
+//                type = "audio/*"
+//                putExtra(Intent.EXTRA_STREAM, contentUri)
+//                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+//            }
+//
+//            context.startActivity(Intent.createChooser(shareIntent, "Share Music File"))
+//        } catch (e: Exception) {
+//            android.util.Log.e("ShareError", "Error sharing file: ${e.message}")
+//        }
+//    }
+// In TrackRepository.kt
+    fun shareAudioFile(context: Context, track: SonarTrackEntity) {
+        try {
+            // 1. Convert the saved string back to a system URI
+            val trackUri = Uri.parse(track.uriString)
+
+            // 2. Build the Intent
+            val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                type = "audio/*"
+                putExtra(Intent.EXTRA_STREAM, trackUri)
+                // 3. IMPORTANT: Grant temporary read permission to the receiving app
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+
+            // 4. Start the chooser
+            context.startActivity(Intent.createChooser(shareIntent, "Share: ${track.title}"))
+
+        } catch (e: Exception) {
+            android.util.Log.e("SHARE_ERROR", "${e.message}")
+            Toast.makeText(context, "Could not share this file", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     // 1. Manual Add
     suspend fun addManualTrack(title: String, artist: String, category: String, path: String) {
@@ -37,9 +93,7 @@ class TrackRepository(private val trackDao: TrackDao) {
     suspend fun updateCategory(uri: String, newCategory: String) {
         trackDao.updateTrackCategory(uri, newCategory)
     }
-//    suspend fun updateTrackCategory(uri: String, newCategory: String) {
-//        trackDao.updateCategory(uri, newCategory)
-//    }
+
     // 3. Remove/Delete
     suspend fun removeTrack(track: SonarTrackEntity) {
         trackDao.deleteTrack(track)
@@ -110,10 +164,7 @@ class TrackRepository(private val trackDao: TrackDao) {
         trackDao.insertTrack(manualTrack)
     }
 
-    /**
-     * 2. EDIT CATEGORY
-     * Updates the category string for a specific track using its URI.
-     */
+
     suspend fun updateTrackCategory(uri: String, newCategory: String) {
         trackDao.updateTrackCategory(uri, newCategory)
     }

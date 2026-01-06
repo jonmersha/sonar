@@ -343,6 +343,7 @@ fun SonarDashboard(
         }
 
         // --- 4. LIST / GRID CONTENT ---
+        val context = androidx.compose.ui.platform.LocalContext.current
         Box(modifier = Modifier.weight(1f)) {
             if (viewModel.isGridView) {
                 LazyVerticalGrid(
@@ -370,7 +371,11 @@ fun SonarDashboard(
                                 trackToEdit = track
                                 editCategoryName = track.category
                             },
-                            onDeleteClick = { viewModel.onDeleteTrack(track) }
+                            onDeleteClick = { viewModel.onDeleteTrack(track) },
+                            onShareClick = {
+                                // CALL THE VIEWMODEL/REPOSITORY HERE
+                                viewModel.shareTrack(context, track)
+                            }
                         )
                     }
                 }

@@ -1,6 +1,6 @@
 package com.besheger.sonar.ui.components
 
-import androidx.compose.foundation.BorderStroke
+
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -8,11 +8,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
+
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MusicNote
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
@@ -32,7 +32,9 @@ fun TrackListItem(
     activeTrack: SonarTrackEntity?,
     onPlayRequest: (SonarTrackEntity) -> Unit,
     onEditClick: () -> Unit,
-    onDeleteClick: () -> Unit
+    onDeleteClick: () -> Unit,
+    onShareClick: () -> Unit // NEW PARAMETER
+
 ) {
     val isSelected = activeTrack?.uriString == track.uriString
 
@@ -77,6 +79,15 @@ fun TrackListItem(
             }
 
             // --- ACTION BUTTONS ---
+            // --- ACTION BUTTONS ---
+            IconButton(onClick = onShareClick) { // SHARE BUTTON
+                Icon(
+                    imageVector = androidx.compose.material.icons.Icons.Default.Share,
+                    contentDescription = "Share",
+                    tint = Color.Cyan.copy(0.7f),
+                    modifier = Modifier.size(20.dp)
+                )
+            }
             IconButton(onClick = {
                 android.util.Log.d("UI_DEBUG", "Edit clicked for ${track.title}")
                 onEditClick()
