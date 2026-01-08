@@ -20,36 +20,6 @@ class TrackRepository(private val trackDao: TrackDao) {
     val totalTracksCount = trackDao.getTrackCount()
     val categoryStats = trackDao.getCategoryStats()
 
-    // In TrackRepository.kt
-//    fun shareAudioFile(context: Context, track: SonarTrackEntity) {
-//        try {
-//            val file = File(track.uriString) // Assuming 'path' is the absolute path to the mp3
-//            if (!file.exists()) {
-//                Toast.makeText(context, "File no longer exists on disk${track.uriString}", Toast.LENGTH_SHORT).show()
-//                print(track.uriString)
-//                return
-//            }
-//
-//            // Generate a content URI using FileProvider
-//            val contentUri: Uri = FileProvider.getUriForFile(
-//                context,
-//                "${context.packageName}.fileprovider", // Must match your Manifest
-//                file
-//            )
-//
-//            val shareIntent = Intent().apply {
-//                action = Intent.ACTION_SEND
-//                type = "audio/*"
-//                putExtra(Intent.EXTRA_STREAM, contentUri)
-//                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-//            }
-//
-//            context.startActivity(Intent.createChooser(shareIntent, "Share Music File"))
-//        } catch (e: Exception) {
-//            android.util.Log.e("ShareError", "Error sharing file: ${e.message}")
-//        }
-//    }
-// In TrackRepository.kt
     fun shareAudioFile(context: Context, track: SonarTrackEntity) {
         try {
             // 1. Convert the saved string back to a system URI
